@@ -165,3 +165,5 @@ console.log("23:23: ", timeWord("23:23"));  // eleven twenty three pm
 // Set "oh" to be "oh" or null
 
 // Set special cases (i.e., minutes :00, hour 00: or 12:)
+
+module.exports = timeWord;
