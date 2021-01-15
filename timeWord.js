@@ -44,7 +44,6 @@ let numLookUp = {
  */
 function convertHours(hours) {
   hours = +hours;
-  // console.log("HOURS from convertHours: ", hours);
   let newHours;
 
   switch (true) {
@@ -62,7 +61,6 @@ function convertHours(hours) {
 
   // convert newHours (Number) to a 2-character padded string 
   newHours = newHours.toString().padStart(2, '0');
-  // console.log("NEWHOURS: ", newHours);
   return newHours;  // a string of length 2
 }
 
@@ -81,7 +79,6 @@ function convertHours(hours) {
  *       hours "12" => "noon"
  */
 function hoursToWords(hours, newHours, minutes) {
-  // console.log("HOURS: ", hours, "NEWHOURS: ", newHours);
   let hoursWord = numLookUp[newHours];
   if (hours === '00' && minutes === '00') {
       hoursWord = "midnight";
@@ -89,7 +86,6 @@ function hoursToWords(hours, newHours, minutes) {
   if (hours === '12' && minutes === '00') {
     hoursWord = "noon";
   }
-  // console.log("HOURSWORD: ", hoursWord);
   return hoursWord;
 }
 
@@ -109,7 +105,6 @@ function hoursToWords(hours, newHours, minutes) {
 function minutesToWords(hours, minutes) {
   // set initial value for minutesWord (will be undefined for some inputs)
   let minutesWord = numLookUp[minutes];
-  // console.log("MINUTESWORD unadj: ", minutesWord);
 
   // ***************************************
   // ADJUST minutesWord for special cases
@@ -122,7 +117,6 @@ function minutesToWords(hours, minutes) {
   if (+minutes > 0 && +minutes <= 9) {
     minutesWord = "oh " + minutesWord;
   }
-  // console.log("MINUTESWORD adj 01 - 09: ", minutesWord);
 
   // if minutes numeric value is above 20
   if (+minutes > 20) {
@@ -179,20 +173,24 @@ function timeWord(timeString) {
   // get AM/PM; use military hours as input
   const meridian = getAmPm(hours, hoursWord);  
   
-  const result = hoursWord + " " + minutesWord + " " + meridian;
+  let result = hoursWord + " " + minutesWord + " " + meridian;
+  // remove extra spaces in result
+  result = result.replace(/\s+/g,' ');
+  result = result.trimEnd();
   // return result
   return result;
 }
 
-console.log("00:00: ", timeWord("00:00"));  // midnight
-console.log("00:12: ", timeWord("00:12"));  // twelve twelve am
-console.log("01:00: ", timeWord("01:00"));  // one o'clock am
-console.log("06:01: ", timeWord("06:01"));  // six oh one am
-console.log("06:10: ", timeWord("06:10"));  // six ten am
-console.log("06:18: ", timeWord("06:18"));  // six eighteen am
-console.log("06:30: ", timeWord("06:30"));  // six thirty am
-console.log("10:34: ", timeWord("10:34"));  // tem thirty four am
-console.log("12:00: ", timeWord("12:00"));  // noon
-console.log("12:09: ", timeWord("12:09"));  // twelve oh nine pm
-console.log("23:23: ", timeWord("23:23"));  // eleven twenty three pm
+// console.log("00:00: ", timeWord("00:00"));  // midnight
+// console.log("00:12: ", timeWord("00:12"));  // twelve twelve am
+// console.log("01:00: ", timeWord("01:00"));  // one o'clock am
+// console.log("06:01: ", timeWord("06:01"));  // six oh one am
+// console.log("06:10: ", timeWord("06:10"));  // six ten am
+// console.log("06:18: ", timeWord("06:18"));  // six eighteen am
+// console.log("06:30: ", timeWord("06:30"));  // six thirty am
+// console.log("10:34: ", timeWord("10:34"));  // tem thirty four am
+// console.log("12:00: ", timeWord("12:00"));  // noon
+// console.log("12:09: ", timeWord("12:09"));  // twelve oh nine pm
+// console.log("23:23: ", timeWord("23:23"));  // eleven twenty three pm
 
+module.exports = timeWord;
