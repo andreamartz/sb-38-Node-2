@@ -1,104 +1,132 @@
 /** Turn a string of 24h time into words.
- *  You can trust thta you'll be given a valid string (it will always have a two-digig hour 00-23 and a two-digit minute 00-59). Hours 0-11 are am, and hours 12-23 are pm.
+ *  You can trust that you'll be given a valid string (it will always have a two-digit hour 00-23 and a two-digit minute 00-59). Hours 0-11 are am, and hours 12-23 are pm.
  */
 
-// Set minutes (NOTE: if minInput is "00", more work is needed)
-  // 00: handle separately
-  // 01 - 19: use numLookup table
-  // 20 - 59: separate into first and second digits
-  let numLookUp = { 
-    "00": "o' clock",
-    "01": "one",
-    "02": "two",
-    "03": "three",
-    "04": "four",
-    "05": "five",
-    "06": "six",
-    "07": "seven",
-    "08": "eight",
-    "09": "nine",
-    "10": "ten",
-    "11": "eleven",
-    "12": "twelve",
-    "13": "thirteen",
-    "14": "fourteen",
-    "15": "fifteen",
-    "16": "sixteen",
-    "17": "seventeen",
-    "18": "eighteen",
-    "19": "nineteen",
-    "20": "twenty",
-    "30": "thirty",
-    "40": "forty",
-    "50": "fifty"
-  };
+/**
+ * numLookUp will be used to translate hours and minutes from the military time string into words
+ */
+let numLookUp = { 
+  "00": "o'clock",
+  "01": "one",
+  "02": "two",
+  "03": "three",
+  "04": "four",
+  "05": "five",
+  "06": "six",
+  "07": "seven",
+  "08": "eight",
+  "09": "nine",
+  "10": "ten",
+  "11": "eleven",
+  "12": "twelve",
+  "13": "thirteen",
+  "14": "fourteen",
+  "15": "fifteen",
+  "16": "sixteen",
+  "17": "seventeen",
+  "18": "eighteen",
+  "19": "nineteen",
+  "20": "twenty",
+  "30": "thirty",
+  "40": "forty",
+  "50": "fifty"
+};
 
-
-/** determine AM or PM */
-// function convertHours(hours) {
-//   hours = +hours;
-//   let meridian;
-//   let newHours;
-//   if (hours === 0) {
-//     meridian = "AM";
-//     newHours = 12;
-//   } else  if (hours > 0 && hours < 12) {
-//     meridian = "AM";
-//     newHours = hours;
-//   } else if (hours === 12) {
-//     meridian = "PM";
-//     newHours = hours;
-//   } else if (hours > 12 && hours <= 23) {
-//     meridian = "PM";
-//     newHours = hours - 12;
-//   }
-//   newHours = newHours.toString().padStart(2, '0');
-//   return { newHours, meridian };
-// }
 
 /** 
- * Convert military hours string (of digits) to regular hours string (of digits)
+ * fcn convertHours(hours)
+ * Convert military hours string to regular hours string
+ * 
+ * Input: military hours string of digits (hours)
+ * 
+ * Returns: regular hours string (newHours)
+ * e.g., '00' => '12', '23' => '11', '07' => '07'
  */
 function convertHours(hours) {
   hours = +hours;
   let newHours;
-  if (hours === 0) {
-    newHours = 12;
-  } else  if (hours > 0 && hours < 12) {
-    newHours = hours;
-  } else if (hours === 12) {
-    newHours = hours;
-  } else if (hours > 12 && hours <= 23) {
-    newHours = hours - 12;
+
+  switch (true) {
+    case hours === 0:
+    case hours === 12:
+      newHours = 12;
+      break;
+    case hours < 12:
+      newHours = hours;
+      break;
+    case hours > 12:
+      newHours = hours - 12;
+      break;
   }
+
   // convert newHours (Number) to a 2-character padded string 
   newHours = newHours.toString().padStart(2, '0');
-  return newHours;  // a string
+  return newHours;  // a string of length 2
 }
 
-/** 
- * Input military hours string (of digits); fcn returns "AM" or "PM" 
-*/ 
-function getAmPm(hours) { 
-  hours = +hours;
-  meridian = (hours >= 0 && hours < 12) ? "AM" : "PM";
-  return meridian;
+/**
+ * fcn hoursToWords(newHours)
+ * 
+ * Convert regular hours string of two digits to words
+ * 
+ * Input: 
+ *    * hours (military hours string, e.g., '04' or '22') and
+ *    * newHours (regular hours string, e.g., '04' or '10')
+ * 
+ * Returns: hours in words (hoursWord)
+ * e.g., hours "00" => "midnight", 
+ *       hours "04" => "four", 
+ *       hours "12" => "noon"
+ */
+function hoursToWords(hours, newHours, minutes) {
+  let hoursWord = numLookUp[newHours];
+  if (hours === '00' && minutes === '00') {
+      hoursWord = "midnight";
+  }
+  if (hours === '12' && minutes === '00') {
+    hoursWord = "noon";
+  }
+  return hoursWord;
 }
 
-function timeWord(timeString) {
-  // pull off hours and minutes
-  const hours = timeString.slice(0, 2);  // hours is a string in military hours
-  const minutes = timeString.slice(3, 5);
+/**
+ * fcn minutesToWords(minutes)
+ * 
+ * Convert military minutes string of two digits to words 
+ * 
+ * Input: minutes (2-character long string of digits)
+ * 
+ * Returns: minutes in words (minutesWord)
+ * e.g., "00" => "o'clock", 
+ *       "06" => "oh six", 
+ *       "12" => "twelve"
+ *       "39" => "thirty-nine"
+ */
+function minutesToWords(hours, minutes) {
+  // set initial value for minutesWord (will be undefined for some inputs)
+  let minutesWord = numLookUp[minutes];
 
-  // convert minutes string of two digits to words
-  let minutesWord = numLookUp[minutes];  // minutes is a 2-character string of digits
+  // ***************************************
+  // ADJUST minutesWord for special cases
+  // ***************************************
+  // if time is 00:00 or 12:00
+  if ((hours === "00" || hours === "12") && +minutes === 0) {
+    minutesWord = "";
+  }
+  // if minutes numeric value is between 1 and 9 inclusive
   if (+minutes > 0 && +minutes <= 9) {
     minutesWord = "oh " + minutesWord;
-  } else if (+minutes >= 10 && +minutes <= 20) {
-    minutesWord = minutesWord;
-  } else if (+minutes > 20) {
+  }
+
+  // if minutes numeric value is above 20
+  if (+minutes > 20) {
+    // Break minutes into min1 and min2 such that +min1 + +min2 = +minutes
+
+    // min1 is the first digit (the tens place) of minutes multiplied by 10 and converted back to String, e.g., '35' => '30'
     let min1 = (Number.parseInt(minutes.slice(0, 1), 10) * 10).toString();
     min1Word = numLookUp[min1];
+
+    // min2 is the second digit (the ones place) of minutes padded on the left with a '0' (zero), e.g., '35' => '05'
     let min2 = minutes.slice(1, 2).padStart(2, '0');
     let min2Word;
     if (min2 === "00") {
@@ -108,62 +136,61 @@ function timeWord(timeString) {
     }
     minutesWord = min1Word + " " + min2Word;
   }
+  return minutesWord;
+}
 
-  // get meridian and newHours
-  const newHours = convertHours(hours);  // newHours is a string in regular hours; hours is a string in military hours
-  const meridian = getAmPm(hours);  // hours is in military hours
 
-  // convert the newHours number to words (use numLookup table after first converting number to string of digits)
-  const hoursWord = numLookUp[newHours];
-  // convert the minutes number to words (similar approach as for hours)
+/** 
+ * fcn getAmPm
+ * 
+ * Input military hours string (of digits), e.g. "05" or "12"
+ * The fcn returns "AM" or "PM" 
+*/ 
+function getAmPm(hours, hoursWord) { 
+  hours = +hours;
+  let meridian = (hours >= 0 && hours < 12) ? "AM" : "PM";
+  if (hoursWord === "midnight" || hoursWord === "noon") {
+    meridian = "";
+  }
+  return meridian;
+}
 
-  // use switch cases to take care of output for special cases and then everything else is just the words in order
+/** 
+ * fcn timeWord 
+ * Input a string that expresses military time
+ * The fcn returns 
+ */
+function timeWord(timeString) {
+  // pull off hours and minutes as strings
+  const hours = timeString.slice(0, 2);  
+  const minutes = timeString.slice(3, 5);
+
+  // convert hours and minutes to words
+  const newHours = convertHours(hours);  // string of two digits
+  const hoursWord = hoursToWords(hours, newHours, minutes);  // hours in words
+  const minutesWord = minutesToWords(hours, minutes); // minutes in words
+
+  // get AM/PM; use military hours as input
+  const meridian = getAmPm(hours, hoursWord);  
   
-  const result = hoursWord + " " + minutesWord + " " + meridian;
+  let result = hoursWord + " " + minutesWord + " " + meridian;
+  // remove extra spaces in result
+  result = result.replace(/\s+/g,' ');
+  result = result.trimEnd();
   // return result
   return result;
 }
 
-console.log("00:00: ", timeWord("00:00"));  // midnight
-console.log("00:12: ", timeWord("00:12"));  // twelve twelve am
-console.log("01:00: ", timeWord("01:00"));  // one o'clock am
-console.log("06:01: ", timeWord("06:01"));  // six oh one am
-console.log("06:10: ", timeWord("06:10"));  // six ten am
-console.log("06:18: ", timeWord("06:18"));  // six eighteen am
-console.log("06:30: ", timeWord("06:30"));  // six thirty am
-console.log("10:34: ", timeWord("10:34"));  // tem thirty four am
-console.log("12:00: ", timeWord("12:00"));  // noon
-console.log("12:09: ", timeWord("12:09"));  // twelve oh nine pm
-console.log("23:23: ", timeWord("23:23"));  // eleven twenty three pm
-
-// ****
-// let hrInput_12 = hrInput - 12;
-// ****
-
-// Set hour (NOTE: if hrInput is "00" or "12", more work is needed)
-// if !(hrInput === "00" || hrInput === "12") use this table
-
-// ****
-// let hours_minus_12 = { 
-//                     "01": "one",
-//                     "02": "two",
-//                     "03": "three",
-//                     "04": "four",
-//                     "05": "five",
-//                     "06": "six",
-//                     "07": "seven",
-//                     "08": "eight",
-//                     "09": "nine",
-//                     "10": "ten",
-//                     "11": "eleven",
-//                     };
-// let hrOutput = hours_minus_12.hrInput;
-// ****
-
-
-
-// Set "oh" to be "oh" or null
-
-// Set special cases (i.e., minutes :00, hour 00: or 12:)
+// console.log("00:00: ", timeWord("00:00"));  // midnight
+// console.log("00:12: ", timeWord("00:12"));  // twelve twelve am
+// console.log("01:00: ", timeWord("01:00"));  // one o'clock am
+// console.log("06:01: ", timeWord("06:01"));  // six oh one am
+// console.log("06:10: ", timeWord("06:10"));  // six ten am
+// console.log("06:18: ", timeWord("06:18"));  // six eighteen am
+// console.log("06:30: ", timeWord("06:30"));  // six thirty am
+// console.log("10:34: ", timeWord("10:34"));  // tem thirty four am
+// console.log("12:00: ", timeWord("12:00"));  // noon
+// console.log("12:09: ", timeWord("12:09"));  // twelve oh nine pm
+// console.log("23:23: ", timeWord("23:23"));  // eleven twenty three pm
 
 module.exports = timeWord;
