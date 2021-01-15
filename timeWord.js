@@ -6,7 +6,7 @@
  * numLookUp will be used to translate hours and minutes from the military time string into words
  */
 let numLookUp = { 
-  "00": "o' clock",
+  "00": "o'clock",
   "01": "one",
   "02": "two",
   "03": "three",
@@ -46,25 +46,19 @@ function convertHours(hours) {
   hours = +hours;
   // console.log("HOURS from convertHours: ", hours);
   let newHours;
-  if (hours === 0 || hours === 12) {
-    newHours = 12;
-  } else if (hours < 12) {
-    newHours = hours;
-  } else if (hours > 12) {
-    newHours = hours - 12;
+
+  switch (true) {
+    case hours === 0:
+    case hours === 12:
+      newHours = 12;
+      break;
+    case hours < 12:
+      newHours = hours;
+      break;
+    case hours > 12:
+      newHours = hours - 12;
+      break;
   }
-  // switch (true) {
-  //   case hours === 0:
-  //   case hours === 12:
-  //     newHours = 12;
-  //     break;
-  //   case hours < 12:
-  //     newHours = hours;
-  //     break;
-  //   case hours > 12:
-  //     newHours = hours - 12;
-  //     break;
-  // }
 
   // convert newHours (Number) to a 2-character padded string 
   newHours = newHours.toString().padStart(2, '0');
@@ -95,17 +89,6 @@ function hoursToWords(hours, newHours, minutes) {
   if (hours === '12' && minutes === '00') {
     hoursWord = "noon";
   }
-  // switch (hours) {
-  //   case '00':
-  //     hoursWord = "midnight";
-  //     break;
-  //   case "12":
-  //     hoursWord = "noon";
-  //     break;
-  //   default: 
-  //     hoursWord = numLookUp[newHours];
-  //     break;
-  // }
   // console.log("HOURSWORD: ", hoursWord);
   return hoursWord;
 }
@@ -132,7 +115,7 @@ function minutesToWords(hours, minutes) {
   // ADJUST minutesWord for special cases
   // ***************************************
   // if time is 00:00 or 12:00
-  if (+minutes === 0 && (hours === "00" || hours === "12")) {
+  if ((hours === "00" || hours === "12") && +minutes === 0) {
     minutesWord = "";
   }
   // if minutes numeric value is between 1 and 9 inclusive
